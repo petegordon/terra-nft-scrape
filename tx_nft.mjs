@@ -125,11 +125,19 @@ async function processNFTContract(nft, options) {
 
 }
 function getNFT_URL(nft_json) {
-    let file_name = nft_json.extension.image.split('//')[1]
-    logger.info(file_name)
-    let request_url = (file_name.startsWith('ipfs.io/ipfs/') ? 'https://' : 'https://ipfs.io/ipfs/') + file_name
-    logger.info(request_url)
-    return request_url
+    console.log(nft_json)
+    console.log(nft_json.extension.image)
+    logger.info(nft_json.extension.image)
+    if (nft_json.extension.hasOwnProperty('image')) {
+        let file_name = nft_json.extension.image.split('//')[1]
+        logger.info(file_name)
+        let request_url = (file_name.startsWith('ipfs.io/ipfs/') ? 'https://' : 'https://ipfs.io/ipfs/') + file_name
+        logger.info(request_url)
+        return request_url
+    } else {
+        logger.error('has extension but did not have image property!')
+    }
+
 }
 async function downloadAndSaveNFT(nft_url, output_dir) {
     const body = await got(nft_url).buffer();
