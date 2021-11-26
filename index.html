@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Playground</title>
+</head>
+<body>
+</body>
+<script>
+const ws = new WebSocket('ws://localhost:8000/');
+ws.onopen = function() {
+    console.log('WebSocket Client Connected');
+    ws.send('Hi this is web client.');
+};
+ws.onmessage = function(e) {
+  console.log("Received: '" + e.data + "'");
+  if(e.data.startsWith('{') || e.data.startsWith('[')){
+    let data = JSON.parse(e.data)
+    console.log(data)
+    if(data.ipfs_url){
+        createImage(data.ipfs_url)
+    }
+  }
+};
+function createImage(src_url){
+    let image_container = document.querySelector('#image_container')
+    let img = document.createElement('img')
+    img.setAttribute('src', src_url)
+    img.setAttribute('width', '200px')
+    image_container.appendChild(img)
+}
+function sendMsg(){
+//startProcess
+//terra adddress    
+    let sendData = { wallet_addr:document.querySelector('#wallet_address').value }    
+    ws.send(JSON.stringify(sendData))
+}
+
+</script>
+<button id="send_wallet" onclick="sendMsg()">NFTerra Wallet</button>
+<input id="wallet_address" type="text" />
+<div id="image_container">
+
+</div>
+</html>
