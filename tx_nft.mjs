@@ -135,20 +135,30 @@ function getNFT_URL(nft_json) {
         logger.info(request_url)
         return request_url
     } else {
+        let img_src = nft_json.image
         logger.error('has extension but did not have image property!')
+        return img_src
     }
 
 }
 async function downloadAndSaveNFT(nft_url, output_dir) {
-    const body = await got(nft_url).buffer();
+    let image_buffer = null
+    let filename = 'dataUrl_' + new Date().toISOString();
+    console.log(nft_url)
+    if (nft_url.startsWith('data:')) {
+        image_buffer = nft_url
+    } else {
+        image_buffer = await got(nft_url).buffer();
+        filename = nft_url.replaceAll(' ', '_')
+        filename = filename.replaceAll('/', '_')
+        filename = filename + (filename.endsWith('.png') ? '' : '.png')
+    }
+    filename = output_dir + '/' + filename
+
     if (!fs.existsSync(output_dir)) {
         fs.mkdirSync(output_dir);
     }
-    let filename = nft_url.replaceAll(' ', '_')
-    filename = filename.replaceAll('/', '_')
-    filename = filename + (filename.endsWith('.png') ? '' : '.png')
-    filename = output_dir + '/' + filename
-    fs.writeFileSync(filename, body)
+    fs.writeFileSync(filename, image_buffer)
 }
 async function getTXs(wallet_address, offset_id) {
     const { body } = await got('https://fcd.terra.dev/v1/txs?account=' + wallet_address + '&limit=100' + ((offset_id) ? '&offset=' + offset_id : ''));
